@@ -15,7 +15,7 @@
 ## Verify bug entry bindings again after unreachable code elimination.
 
 # RUN: llvm-bolt %t.out -o %t.out.1 --print-only=_start --print-normalized \
-# RUN:   |& FileCheck --check-prefix=CHECK-REOPT %s
+# RUN:   2>&1 | FileCheck --check-prefix=CHECK-REOPT %s
 
 # CHECK:      BOLT-INFO: Linux kernel binary detected
 # CHECK:      BOLT-INFO: parsed 2 bug table entries
@@ -40,6 +40,10 @@ _start:
 # CHECK-REOPT-SAME: BugEntry: 2
 
   ret
+## The return instruction is reachable only via preceding ud2. Test that it is
+## treated as a reachable instruction in the Linux kernel mode.
+
+# CHECK-REOPT-NEXT: ret
   .size _start, .-_start
 
 
